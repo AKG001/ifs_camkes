@@ -52,6 +52,9 @@ from capdl import seL4_CapTableObject, ObjectAllocator, CSpaceAllocator, \
 
 from camkes.parser import parse_file, ParseError
 
+#(IFC POLICY)
+from camkes.runner.IfcPolicy import *
+
 CAPDL_STATE_PICKLE = 'capdl_state.p'
 
 class ParserOptions():
@@ -429,6 +432,9 @@ def main(argv, out, err):
     if assembly is None:
         die('No assembly found')
 
+    #(IFC POLICY)
+    generate_adjacency_control_matrix(assembly)
+
     # Do some extra checks if the user asked for verbose output.
     if options.verbosity >= 2:
 
@@ -776,11 +782,6 @@ def main(argv, out, err):
                     except TemplateError as inst:
                         die(rendering_error(item, inst))
 
-    for i in ast._items:
-        print ("rpc start")
-        print (i.__dict__)
-        print ("rpc end")
-
     # Perform any per component special generation. This needs to happen last
     # as these template needs to run after all other capabilities have been
     # allocated
@@ -809,10 +810,6 @@ def main(argv, out, err):
                             done(g, outfile, item)
                 except TemplateError as inst:
                     die(rendering_error(i.name, inst))
-    for i in ast._items:
-        print ("rpc next start")
-        print (i.__dict__)
-        print ("rpc next end")
 
     if options.data_structure_cache_dir is not None:
         # At this point the capdl database is in the state required for applying capdl
