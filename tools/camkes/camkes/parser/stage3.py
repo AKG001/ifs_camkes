@@ -455,6 +455,14 @@ def _lift_hardware(location, *_):
 def _lift_instance_defn(location, component_ref, id):
     return Instance(component_ref, id, location)
 
+def _lift_ifcpolicy_defn(location, *args):
+    print (len(args))
+    return None
+
+def _lift_ifcpolicy_decl(location, *args):
+    print(len(args))
+    return None
+
 def _lift_list(location, *args):
     return [strip_quotes(x) for x in args]
 
@@ -701,6 +709,8 @@ LIFT = {
     'id':_collapse,
     'include':_lift_include,
     'instance_defn':_lift_instance_defn,
+    'ifcpolicy_defn':_lift_ifcpolicy_defn,
+    'ifcpolicy_decl':_lift_ifcpolicy_decl,
     'list':_lift_list,
     'logical_not':_lift_logical_not,
     'maybe':_collapse,
