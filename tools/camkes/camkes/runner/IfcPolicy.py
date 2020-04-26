@@ -1,4 +1,4 @@
-from camkes.ast import Instance, Connection, Component, Uses, Provides
+from camkes.ast import Instance, Connection, Component, Uses, Provides, IfcPolicy
 import ctypes
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -87,3 +87,9 @@ def print_graph(access_control_matrix):
     nx.draw(DG, node_color = 'Y', node_size=2000, edge_color='r', with_labels=True)
     plt.savefig("path_graph1.png")
     #plt.show()
+
+def get_ifcpolicy_rules(ast):
+    for item in ast._items:
+        if isinstance(item, IfcPolicy):
+            print (item.__dict__)
+

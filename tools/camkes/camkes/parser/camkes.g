@@ -88,7 +88,7 @@ assembly_defn: '\{' composition_sing configuration_sing? '\}'
              | '\{' configuration_sing composition_sing '\}';
 
 ifcpolicy_decl: IFCPOLICY id? '\{' (ifcpolicy_defn)* '\}';
-ifcpolicy_defn:  FROM component_ref TO component_ref ';'; 
+ifcpolicy_defn:  FROM reference TO reference ';'; 
 
 composition_sing: COMPOSITION reference ';'
                 | composition_decl;
