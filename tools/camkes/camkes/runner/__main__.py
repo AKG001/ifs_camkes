@@ -433,8 +433,7 @@ def main(argv, out, err):
         die('No assembly found')
 
     #(IFC POLICY)
-    generate_adjacency_control_matrix(assembly)
-    get_ifcpolicy_rules(ast)
+    CheckIfc(assembly, ast)
 
     # Do some extra checks if the user asked for verbose output.
     if options.verbosity >= 2:
