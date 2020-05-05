@@ -73,8 +73,14 @@ def generate_adjacency_control_matrix(assembly):
                and from_end._parent._to_ends[0]._instance._name.encode("ascii") != 'rwfm_monitor':
                 row_id = component_list[from_end._instance.name.encode("ascii")][1]
                 column_id = component_list[from_end._parent._to_ends[0]._instance._name.encode("ascii")][1]
-                edgeList.append(tuple((row_id-1, column_id-1)))
-                access_control_matrix[row_id-1][column_id-1] = 1
+                if interfaces._type._name.encode("ascii") == "seL4RPCCall":
+                    edgeList.append(tuple((row_id-1, column_id-1)))
+                    edgeList.append(tuple((column_id-1, row_id-1)))
+                    access_control_matrix[row_id-1][column_id-1] = \
+                            access_control_matrix[row_id-1][column_id-1] = 1
+                else:
+                    edgeList.append(tuple((row_id-1, column_id-1)))
+                    access_control_matrix[row_id-1][column_id-1] = 1
                 interfaces_list[from_end] = (from_end.interface.name.encode("ascii"), 
                                             global_id, 
                                             type(from_end.interface), 
@@ -139,7 +145,7 @@ def print_graph(tcAccessControlMatrix, ifcPolicyMatrix):
     
     number_of_nodes = len(component_list)
 
-    DG = nx.DiGraph()
+    DG = nx.MultiDiGraph()
     for node in component_list:
         DG.add_node(node)
     
@@ -149,21 +155,26 @@ def print_graph(tcAccessControlMatrix, ifcPolicyMatrix):
             column   = component_list[end][1]
             if tcAccessControlMatrix[row-1][column-1] == 1 and \
                     ifcPolicyMatrix[row-1][column-1] == 1:
-                DG.add_edge(start, end, color='g')
+                DG.add_edge(start, end, color='green')
             if tcAccessControlMatrix[row-1][column-1] == 1 and \
                     ifcPolicyMatrix[row-1][column-1] == 0:
-                DG.add_edge(start, end, color='r')
+                DG.add_edge(start, end, color='red')
             if tcAccessControlMatrix[row-1][column-1] == 0 and \
                     ifcPolicyMatrix[row-1][column-1] == 1:
-                DG.add_edge(start, end, color='b')
+                DG.add_edge(start, end, color='blue')
     
     edges = DG.edges()
-    colors = [DG[u][v]['color'] for u,v in edges]
+    colors = []
+    for (u,v,attrib_dict) in list(DG.edges.data()):
+        colors.append(attrib_dict['color'])
 
     print (DG.nodes()) #print nodes in graph
     print (edges) #print edges in graph
 
-    nx.draw(DG, node_color = 'Y', node_size=2000, edges=edges, edge_color=colors, with_labels=True)
+    nx.draw(DG, node_color = 'Y', node_size=2000, \
+            edges=edges, edge_color=colors, with_labels=True)
     plt.savefig("checkIfc.png")
+    A = nx.nx_agraph.to_agraph(DG)
+    A.write('graph.dot') # write it into a dot file. To open, use graphviz
     #plt.show()
 

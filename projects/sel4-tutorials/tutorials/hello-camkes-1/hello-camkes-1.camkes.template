@@ -10,8 +10,8 @@ assembly {
         component Client2 client2;
         component Echo echo;
 
-        connection seL4RPC h1(from client1.h2, to echo.h3);
-        connection seL4RPC h4(from echo.h5, to client2.h6);
+        connection seL4RPCCall h1(from client1.h2, to echo.h3);
+        connection seL4RPCCall h4(from echo.h5, to client2.h6);
    }
 };
 ifcpolicy{
