@@ -11,6 +11,10 @@ interfaces_list = dict()
 
 logging_file = "ifc_policy_log"
 
+def get_key(val, my_dict): 
+    for key, value in my_dict.items(): 
+         if val == value[1]: 
+             return key 
 
 def DFSUtil(tc, graph, s, v):
     tc[s][v] = 1
@@ -21,6 +25,7 @@ def DFSUtil(tc, graph, s, v):
 
 def transitiveClosure(edgeList, vertices):
     """Returns transitive closure matrix of a graph."""
+    """edgeList doesn't contain (i,i)."""
     graph = defaultdict(list)
     tc = [[0 for j in range(vertices)] for i in range(vertices)]
 
@@ -77,7 +82,7 @@ def generate_adjacency_control_matrix(assembly):
                     edgeList.append(tuple((row_id-1, column_id-1)))
                     edgeList.append(tuple((column_id-1, row_id-1)))
                     access_control_matrix[row_id-1][column_id-1] = \
-                            access_control_matrix[row_id-1][column_id-1] = 1
+                            access_control_matrix[column_id-1][row_id-1] = 1
                 else:
                     edgeList.append(tuple((row_id-1, column_id-1)))
                     access_control_matrix[row_id-1][column_id-1] = 1
@@ -128,7 +133,9 @@ def generate_Ifc_policy_matrix(ifcpolicy):
     for i in range(vertices):
         for j in range(vertices):
             if ifcPolicyMatrix[i][j] != tcIfcPolicyMatrix[i][j]:
-                newFlows.append(tuple((i+1, j+1)))
+                #newFlows.append(tuple((i+1, j+1)))
+                newFlows.append(tuple((get_key(i+1, component_list), \
+                        get_key(j+1, component_list))))
 
     if len(newFlows)>0: print ("Ifc policy is inconsistent."+str(newFlows))
     else:   print("Policy is consistent.")
@@ -142,7 +149,8 @@ def get_ifcpolicy_rules(ast):
 
 def print_graph(tcAccessControlMatrix, ifcPolicyMatrix):
     """Create the flow graph and saves it."""
-    
+
+    redFlows = list()
     number_of_nodes = len(component_list)
 
     DG = nx.MultiDiGraph()
@@ -159,6 +167,8 @@ def print_graph(tcAccessControlMatrix, ifcPolicyMatrix):
             if tcAccessControlMatrix[row-1][column-1] == 1 and \
                     ifcPolicyMatrix[row-1][column-1] == 0:
                 DG.add_edge(start, end, color='red')
+                redFlows.append(tuple((get_key(row, component_list), \
+                        get_key(column, component_list))))
             if tcAccessControlMatrix[row-1][column-1] == 0 and \
                     ifcPolicyMatrix[row-1][column-1] == 1:
                 DG.add_edge(start, end, color='blue')
@@ -170,6 +180,7 @@ def print_graph(tcAccessControlMatrix, ifcPolicyMatrix):
 
     print (DG.nodes()) #print nodes in graph
     print (edges) #print edges in graph
+    print ("Red Flows(not consitent with the Ifc policy) are:"+str(redFlows))
 
     nx.draw(DG, node_color = 'Y', node_size=2000, \
             edges=edges, edge_color=colors, with_labels=True)
