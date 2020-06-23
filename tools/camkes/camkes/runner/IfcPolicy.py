@@ -1,5 +1,6 @@
 from camkes.ast import Instance, Connection, Component, Uses, Provides, IfcPolicy
 import ctypes
+import sys
 import networkx as nx
 import matplotlib.pyplot as plt
 from collections import defaultdict
@@ -47,7 +48,8 @@ def print_list (list_obj, list_name):
 def CheckIfc(assembly, ast):
     tcAccessControlMatrix = generate_adjacency_control_matrix(assembly)
     ifcPolicyMatrix = get_ifcpolicy_rules(ast)
-    print_graph(tcAccessControlMatrix, ifcPolicyMatrix)
+    if ifcPolicyMatrix is not None:
+        print_graph(tcAccessControlMatrix, ifcPolicyMatrix)
 
 def generate_adjacency_control_matrix(assembly):
     """Finds the component names and connections and \
@@ -137,7 +139,9 @@ def generate_Ifc_policy_matrix(ifcpolicy):
                 newFlows.append(tuple((get_key(i+1, component_list), \
                         get_key(j+1, component_list))))
 
-    if len(newFlows)>0: print ("Ifc policy is inconsistent."+str(newFlows))
+    if len(newFlows)>0:
+        print ("Ifc policy is inconsistent."+str(newFlows))
+        sys.exit("Ifc policy is inconsistent") 
     else:   print("Policy is consistent.")
 
     return ifcPolicyMatrix
@@ -180,7 +184,10 @@ def print_graph(tcAccessControlMatrix, ifcPolicyMatrix):
 
     print (DG.nodes()) #print nodes in graph
     print (edges) #print edges in graph
-    print ("Red Flows(not consitent with the Ifc policy) are:"+str(redFlows))
+    print ("Existing flows in the system are inconsistent with the IFC Policy.\
+            Inconsistent flows are:"+str(redFlows))
+    if len(redFlows)>0: sys.exit("Existing flows in the system are \
+            inconsistent with the IFC Policy.")
 
     nx.draw(DG, node_color = 'Y', node_size=2000, \
             edges=edges, edge_color=colors, with_labels=True)
