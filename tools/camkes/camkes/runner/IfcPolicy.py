@@ -182,17 +182,16 @@ def print_graph(tcAccessControlMatrix, ifcPolicyMatrix):
     for (u,v,attrib_dict) in list(DG.edges.data()):
         colors.append(attrib_dict['color'])
 
-    print (DG.nodes()) #print nodes in graph
-    print (edges) #print edges in graph
-    print ("Existing flows in the system are inconsistent with the IFC Policy.\
-            Inconsistent flows are:"+str(redFlows))
-    if len(redFlows)>0: sys.exit("Existing flows in the system are \
-            inconsistent with the IFC Policy.")
-
     nx.draw(DG, node_color = 'Y', node_size=2000, \
             edges=edges, edge_color=colors, with_labels=True)
     plt.savefig("checkIfc.png")
     A = nx.nx_agraph.to_agraph(DG)
     A.write('graph.dot') # write it into a dot file. To open, use graphviz
     #plt.show()
-
+    
+    print (DG.nodes()) #print nodes in graph
+    print (edges) #print edges in graph
+    print ("Existing flows in the system are inconsistent with the IFC Policy.\
+            Inconsistent flows are:"+str(redFlows))
+    if len(redFlows)>0: sys.exit("Existing flows in the system are \
+            inconsistent with the IFC Policy.")

@@ -17,4 +17,5 @@ assembly {
 ifcpolicy{
   from client1 to echo;
   from echo to client2;
+  from client1 to client2;
 };
